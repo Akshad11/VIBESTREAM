@@ -5,7 +5,7 @@ import { Play, Clock, Trash2, ArrowLeft, Loader2, ListMusic } from "lucide-react
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useMusic } from "../../context/MusicContext";
-import { cn } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
@@ -148,12 +148,12 @@ export default function PlaylistView() {
       <div className="w-full">
         {songs.length > 0 ? (
           <>
-            <div className="grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 py-3 px-4 border-b border-white/5 text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
-              <div className="w-8 text-center">#</div>
+            <div className="grid grid-cols-[auto_1fr_auto_auto] md:grid-cols-[auto_1fr_1fr_auto_auto] gap-2 md:gap-4 py-3 px-2 md:px-4 border-b border-white/5 text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2">
+              <div className="w-6 md:w-8 text-center">#</div>
               <div>Title</div>
               <div className="hidden md:block">Artist</div>
-              <div className="w-16 flex justify-end pr-4"><Clock className="w-4 h-4" /></div>
-              <div className="w-12"></div>
+              <div className="w-12 md:w-16 flex justify-end pr-2 md:pr-4"><Clock className="w-4 h-4" /></div>
+              <div className="w-8 md:w-12"></div>
             </div>
 
             <div className="space-y-1">
@@ -168,7 +168,7 @@ export default function PlaylistView() {
                     else playSong(song, songs);
                   }}
                   className={cn(
-                    "group grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 py-3 px-4 rounded-xl items-center cursor-pointer transition-all hover:bg-white/5 border border-transparent hover:border-white/5",
+                    "group grid grid-cols-[auto_1fr_auto_auto] md:grid-cols-[auto_1fr_1fr_auto_auto] gap-2 md:gap-4 py-3 px-2 md:px-4 rounded-xl items-center cursor-pointer transition-all hover:bg-white/5 border border-transparent hover:border-white/5",
                     activeSong?.id === song.id && "bg-white/5 border-white/10"
                   )}
                 >
@@ -203,7 +203,7 @@ export default function PlaylistView() {
                   </div>
 
                   <div className="w-16 text-xs text-white/40 text-right pr-4 font-mono tracking-tighter">
-                    --:--
+                    {song.duration ? formatDuration(song.duration) : "--:--"}
                   </div>
 
                   <div className="w-12 flex items-center justify-end">

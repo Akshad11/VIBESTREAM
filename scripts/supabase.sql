@@ -7,11 +7,12 @@ CREATE TABLE IF NOT EXISTS songs (
   song_path TEXT NOT NULL, -- Will store audio path in the 'music' bucket
   image_path TEXT,         -- Will store image URL from the 'music' bucket
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  is_public BOOLEAN DEFAULT true NOT NULL
+  is_public BOOLEAN DEFAULT true NOT NULL,
+  duration INTEGER         -- Will store song duration in seconds
 );
 
 -- Note: Run this if the table already exists:
--- ALTER TABLE songs ADD COLUMN is_public BOOLEAN DEFAULT true NOT NULL;
+-- ALTER TABLE songs ADD COLUMN duration INTEGER;
 
 -- 2. ENABLE ROW LEVEL SECURITY
 ALTER TABLE songs ENABLE ROW LEVEL SECURITY;

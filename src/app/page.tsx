@@ -7,7 +7,7 @@ import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 import { useMusic } from "./context/MusicContext";
 
 const levenshtein = (a: string, b: string) => {
@@ -166,14 +166,14 @@ function HomeContent() {
       {!searchQuery && (
         <section className="mb-10 relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-secondary to-primary rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-          <div className="relative h-64 bg-card rounded-3xl p-10 flex flex-col justify-center overflow-hidden border border-border">
+          <div className="relative h-64 bg-card rounded-3xl p-6 md:p-10 flex flex-col justify-center overflow-hidden border border-border">
             <div className="absolute right-0 top-0 w-1/2 h-full opacity-40">
               <div className="w-full h-full bg-gradient-to-l from-secondary/50 to-transparent"></div>
             </div>
             
             <div className="relative z-20">
               <span className="text-xs font-bold uppercase tracking-[0.3em] text-primary mb-2 block">Featured Album</span>
-              <h1 className="text-5xl lg:text-6xl font-black mb-4 tracking-tighter text-white leading-tight uppercase">VIBE<br/>COLLECTIVE</h1>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-4 tracking-tighter text-white leading-tight uppercase">VIBE<br/>COLLECTIVE</h1>
               <div className="flex items-center gap-6">
                 <button className="px-8 py-3 bg-white text-black font-bold rounded-full flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer">
                   <Play className="w-5 h-5 fill-current" /> Play Mix
@@ -219,11 +219,11 @@ function HomeContent() {
         {songs.length > 0 ? (
           <div className="space-y-1">
             {/* Table Header */}
-            <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-4 py-3 px-4 text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] border-b border-white/5 mb-2">
+            <div className="grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_1fr_auto] gap-4 py-3 px-2 md:px-4 text-[10px] font-bold text-white/20 uppercase tracking-[0.2em] border-b border-white/5 mb-2">
               <div className="w-8 text-center">#</div>
               <div>Title</div>
               <div className="hidden md:block">Artist</div>
-              <div className="w-16 text-right pr-4"><Clock className="w-4 h-4 ml-auto" /></div>
+              <div className="w-12 md:w-16 text-right pr-2 md:pr-4"><Clock className="w-4 h-4 ml-auto" /></div>
             </div>
 
             {songs.map((song, idx) => (
@@ -237,7 +237,7 @@ function HomeContent() {
                   else playSong(song, songs);
                 }}
                 className={cn(
-                  "group grid grid-cols-[auto_1fr_1fr_auto] gap-4 py-3 px-4 rounded-xl items-center cursor-pointer transition-all hover:bg-white/5 border border-transparent hover:border-white/5",
+                  "group grid grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1fr_1fr_auto] gap-4 py-3 px-2 md:px-4 rounded-xl items-center cursor-pointer transition-all hover:bg-white/5 border border-transparent hover:border-white/5",
                   activeSong?.id === song.id && "bg-white/5 border-white/10"
                 )}
               >
@@ -274,7 +274,7 @@ function HomeContent() {
                 </div>
 
                 <div className="w-16 text-xs text-white/40 text-right pr-4 font-mono tracking-tighter">
-                  --:--
+                  {song.duration ? formatDuration(song.duration) : "--:--"}
                 </div>
               </motion.div>
             ))}

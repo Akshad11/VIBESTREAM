@@ -15,6 +15,7 @@ interface QueuedFile {
   status: 'idle' | 'uploading' | 'success' | 'error';
   errorMessage?: string;
   coverArt?: File;
+  duration?: number;
 }
 
 export default function UploadBox() {
@@ -45,18 +46,19 @@ export default function UploadBox() {
       let title = file.name.replace(/\.[^/.]+$/, "");
       let artist = globalArtist || "Unknown Artist";
       let coverArt: File | undefined = undefined;
+      let duration: number | undefined = undefined;
       
       try {
         const metadata = await mm.parseBlob(file);
         if (metadata.common.title) title = metadata.common.title;
         if (metadata.common.artist) artist = metadata.common.artist;
+        if (metadata.format.duration) duration = Math.floor(metadata.format.duration);
         
         if (metadata.common.picture && metadata.common.picture.length > 0) {
            const pic = metadata.common.picture[0];
            const blob = new Blob([pic.data as any], { type: pic.format });
            coverArt = new File([blob], `cover-${Math.random().toString(36).substr(2, 5)}.jpg`, { type: pic.format });
            
-           // Also set as global image if none exists yet
            if (!imageFile) {
              setImageFile(coverArt);
            }
@@ -71,7 +73,8 @@ export default function UploadBox() {
         title,
         artist,
         status: 'idle',
-        coverArt
+        coverArt,
+        duration
       });
     }
     
@@ -115,7 +118,6 @@ export default function UploadBox() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Upload one by one
       for (const item of queue) {
         if (item.status === 'success') continue;
 
@@ -124,7 +126,6 @@ export default function UploadBox() {
         try {
           let isPublic = true;
 
-          // Check for existing published duplicates by this user
           const { data: existing } = await supabase
             .from("songs")
             .select("id, is_public")
@@ -148,14 +149,12 @@ export default function UploadBox() {
           const audioPath = `song-${timestamp}-${item.file.name}`;
           let imagePath = "";
 
-          // 1. Upload Audio
           const { error: audioError } = await supabase.storage
             .from("music")
             .upload(audioPath, item.file);
 
           if (audioError) throw audioError;
 
-          // 2. Upload Image (Item specific or global fallback)
           const activeCover = item.coverArt || imageFile;
           if (activeCover) {
             imagePath = `image-${timestamp}-${activeCover.name}`;
@@ -166,7 +165,6 @@ export default function UploadBox() {
             if (imageError && imageError.message !== "The resource already exists") throw imageError;
           }
 
-          // 3. Insert Record
           const { error: dbError } = await supabase
             .from("songs")
             .insert({
@@ -175,7 +173,8 @@ export default function UploadBox() {
               song_path: audioPath,
               image_path: imagePath ? supabase.storage.from("music").getPublicUrl(imagePath).data.publicUrl : null,
               user_id: user?.id,
-              is_public: isPublic
+              is_public: isPublic,
+              duration: item.duration
             });
 
           if (dbError) throw dbError;

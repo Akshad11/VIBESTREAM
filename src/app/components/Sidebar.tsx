@@ -3,9 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Library, PlusSquare, ListMusic, Heart, Settings } from "lucide-react";
+import { Home, Compass, Library, PlusSquare, ListMusic, Heart, Settings, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
 
 const mainLinks = [
   { icon: Home, label: "Home", href: "/" },
@@ -19,11 +18,20 @@ const secondaryLinks = [
   { icon: Heart, label: "Favorites", href: "/favorites" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
-    <aside className="w-64 flex-shrink-0 flex flex-col bg-black/40 border-r border-white/5">
+    <aside className="w-64 h-full flex-shrink-0 flex flex-col bg-black lg:bg-black/40 border-r border-white/5 relative">
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-white/40 hover:text-white lg:hidden"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      )}
+      
       <div className="p-6 mb-4">
-        <Link href="/" className="flex items-center gap-3 mb-10">
+        <Link href="/" className="flex items-center gap-3 mb-10" onClick={onClose}>
           <div className="w-[60px] h-[60px] flex-shrink-0 flex items-center justify-center overflow-hidden">
             <img src="/logo.png" className="w-full h-full object-contain" alt="VibeStream Logo" />
           </div>
@@ -38,7 +46,7 @@ export default function Sidebar() {
           </h2>
           <div className="space-y-1">
             {mainLinks.map((link, idx) => (
-              <SidebarLink key={link.href || String(idx)} icon={link.icon} label={link.label} href={link.href} />
+              <SidebarLink key={link.href || String(idx)} icon={link.icon} label={link.label} href={link.href} onClick={onClose} />
             ))}
           </div>
         </div>
@@ -49,28 +57,28 @@ export default function Sidebar() {
           </h2>
           <div className="space-y-1">
             {secondaryLinks.map((link, idx) => (
-              <SidebarLink key={link.href || String(idx)} icon={link.icon} label={link.label} href={link.href} />
+              <SidebarLink key={link.href || String(idx)} icon={link.icon} label={link.label} href={link.href} onClick={onClose} />
             ))}
           </div>
         </div>
       </nav>
 
       <div className="p-6 mt-auto">
-        {/* Pro Plan space - hidden for now */}
         <div className="h-4" />
-        <SidebarLink icon={Settings} label="Settings" href="/settings" />
+        <SidebarLink icon={Settings} label="Settings" href="/settings" onClick={onClose} />
       </div>
     </aside>
   );
 }
 
-const SidebarLink: React.FC<{ icon: any; label: string; href: string }> = ({ icon: Icon, label, href }) => {
+const SidebarLink: React.FC<{ icon: any; label: string; href: string; onClick?: () => void }> = ({ icon: Icon, label, href, onClick }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         "flex items-center gap-3 py-1.5 rounded-lg text-sm transition-colors group relative overflow-hidden",
         isActive

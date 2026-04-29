@@ -79,8 +79,8 @@ export default function Player() {
   return (
     <footer className="h-24 w-full bg-black/80 backdrop-blur-2xl border-t border-white/5 px-4 md:px-8 flex items-center justify-between z-20 flex-shrink-0">
       {/* Current Song Info */}
-      <div className="flex items-center gap-4 w-1/4 min-w-[180px]">
-        <div className="relative group w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
+      <div className="flex items-center gap-2 md:gap-4 w-1/3 md:w-1/4 min-w-[120px] md:min-w-[180px]">
+        <div className="relative group w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
           <img 
             src={activeSong.image_path || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&h=100&fit=crop"} 
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
@@ -90,28 +90,39 @@ export default function Player() {
              <Maximize2 className="w-4 h-4 text-white" />
           </div>
         </div>
-        <div className="flex flex-col truncate min-w-0">
-          <div className="flex items-center gap-2">
-            <h4 className="text-sm font-bold text-foreground hover:underline cursor-pointer truncate">{activeSong.title}</h4>
-            <div className="hidden sm:block">
+        <div className="flex flex-col truncate min-w-0 flex-1">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <div className={cn(activeSong.title.length > 20 ? "marquee-container" : "truncate")}>
+              <h4 className={cn(
+                "text-xs md:text-sm font-bold text-foreground hover:underline cursor-pointer",
+                activeSong.title.length > 20 ? "animate-marquee" : "truncate"
+              )}>
+                {activeSong.title.length > 20 ? (
+                  <>{activeSong.title} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {activeSong.title}</>
+                ) : (
+                  activeSong.title
+                )}
+              </h4>
+            </div>
+            <div className="hidden sm:block flex-shrink-0 ml-2">
               <Equalizer isPlaying={isPlaying} />
             </div>
           </div>
-          <p className="text-xs text-white/40 hover:underline cursor-pointer truncate">{activeSong.artist}</p>
+          <p className="text-[10px] md:text-xs text-white/40 hover:underline cursor-pointer truncate">{activeSong.artist}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2">
           <button className="text-primary hover:scale-110 transition-transform">
-            <Heart className="w-5 h-5 fill-current" />
+            <Heart className="w-4 h-4 md:w-5 md:h-5 fill-current" />
           </button>
         </div>
       </div>
 
       {/* Player Controls */}
-      <div className="flex flex-col items-center gap-2 w-1/2 max-w-2xl px-4">
-        <div className="flex items-center gap-6 md:gap-8">
+      <div className="flex flex-col items-center gap-1 md:gap-2 flex-1 max-w-2xl px-2 md:px-4">
+        <div className="flex items-center gap-3 sm:gap-6 md:gap-8">
           <button 
             onClick={toggleShuffle}
-            className={cn("transition-colors", isShuffle ? "text-primary" : "text-white/40 hover:text-white")}
+            className={cn("transition-colors hidden sm:block", isShuffle ? "text-primary" : "text-white/40 hover:text-white")}
           >
             <Shuffle className="w-4 h-4 md:w-5 md:h-5" />
           </button>
@@ -119,16 +130,16 @@ export default function Player() {
             onClick={playPrevious}
             className="text-white hover:text-primary transition-colors"
           >
-            <SkipBack className="w-5 h-5 md:w-6 md:h-6 fill-current" />
+            <SkipBack className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 fill-current" />
           </button>
           <button 
             onClick={togglePlay}
-            className="w-10 h-10 md:w-12 md:h-12 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] relative"
+            className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] relative"
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5 md:w-6 md:h-6 fill-current" />
+              <Pause className="w-4 h-4 md:w-6 md:h-6 fill-current" />
             ) : (
-              <Play className="w-5 h-5 md:w-6 md:h-6 fill-current ml-0.5" />
+              <Play className="w-4 h-4 md:w-6 md:h-6 fill-current ml-0.5" />
             )}
             {isPlaying && (
                <motion.div 
@@ -142,20 +153,20 @@ export default function Player() {
             onClick={playNext}
             className="text-white hover:text-primary transition-colors"
           >
-            <SkipForward className="w-5 h-5 md:w-6 md:h-6 fill-current" />
+            <SkipForward className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 fill-current" />
           </button>
           <button 
             onClick={toggleRepeat}
-            className={cn("transition-colors", isRepeat !== 'none' ? "text-primary" : "text-white/40 hover:text-white")}
+            className={cn("transition-colors hidden sm:block", isRepeat !== 'none' ? "text-primary" : "text-white/40 hover:text-white")}
           >
             {isRepeat === 'one' ? <Repeat1 className="w-4 h-4 md:w-5 md:h-5" /> : <Repeat className="w-4 h-4 md:w-5 md:h-5" />}
           </button>
         </div>
         
-        <div className="flex items-center gap-3 w-full group">
-          <span className="text-[10px] text-white/40 font-mono w-8 text-right tracking-tighter">{formatTime(progress)}</span>
+        <div className="flex items-center gap-2 md:gap-3 w-full group">
+          <span className="text-[8px] md:text-[10px] text-white/40 font-mono w-6 md:w-8 text-right tracking-tighter">{formatTime(progress)}</span>
           <div 
-            className="flex-1 h-1.5 md:h-2 bg-white/10 rounded-full relative overflow-hidden cursor-pointer flex items-center"
+            className="flex-1 h-1 md:h-1.5 lg:h-2 bg-white/10 rounded-full relative overflow-hidden cursor-pointer flex items-center"
             onClick={(e) => {
               if (!audioRef.current) return;
               const bounds = e.currentTarget.getBoundingClientRect();
@@ -169,18 +180,18 @@ export default function Player() {
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
-          <span className="text-[10px] text-white/40 font-mono w-8 tracking-tighter">{formatTime(duration)}</span>
+          <span className="text-[8px] md:text-[10px] text-white/40 font-mono w-6 md:w-8 tracking-tighter">{formatTime(duration)}</span>
         </div>
       </div>
 
       {/* Volume & Extras */}
-      <div className="flex items-center justify-end gap-4 md:gap-6 w-1/4 min-w-[150px]">
-        <div className="items-center gap-2 group cursor-pointer hidden sm:flex w-24">
+      <div className="flex items-center justify-end gap-2 md:gap-6 w-auto md:w-1/4 md:min-w-[150px]">
+        <div className="items-center gap-2 group cursor-pointer hidden sm:flex w-16 md:w-24">
           <button onClick={() => setVolume(volume === 0 ? 70 : 0)}>
-            <Volume2 className={cn("w-4 h-4 transition-colors", volume > 0 ? "text-white/60 group-hover:text-white" : "text-primary")} />
+            <Volume2 className={cn("w-3 h-3 md:w-4 md:h-4 transition-colors", volume > 0 ? "text-white/60 group-hover:text-white" : "text-primary")} />
           </button>
           <div 
-            className="flex-1 h-1.5 bg-white/10 rounded-full relative overflow-hidden"
+            className="flex-1 h-1 md:h-1.5 bg-white/10 rounded-full relative overflow-hidden"
             onClick={(e) => {
               const bounds = e.currentTarget.getBoundingClientRect();
               const x = Math.max(0, Math.min(e.clientX - bounds.left, bounds.width));
