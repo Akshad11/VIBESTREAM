@@ -9,6 +9,7 @@ interface Song {
   artist: string;
   song_path: string;
   image_path?: string;
+  duration?: number;
 }
 
 interface MusicContextType {

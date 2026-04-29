@@ -21,22 +21,21 @@ const secondaryLinks = [
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <aside className="w-64 h-full flex-shrink-0 flex flex-col bg-black lg:bg-black/40 border-r border-white/5 relative">
-      {onClose && (
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-white/40 hover:text-white lg:hidden"
-        >
-          <X className="w-6 h-6" />
-        </button>
-      )}
-      
-      <div className="p-6 mb-4">
-        <Link href="/" className="flex items-center gap-3 mb-10" onClick={onClose}>
-          <div className="w-[60px] h-[60px] flex-shrink-0 flex items-center justify-center overflow-hidden">
+      <div className="p-6 mb-4 flex items-start justify-between">
+        <Link href="/" className="flex items-center gap-3" onClick={onClose}>
+          <div className="w-[40px] h-[40px] lg:w-[60px] lg:h-[60px] flex-shrink-0 flex items-center justify-center overflow-hidden">
             <img src="/logo.png" className="w-full h-full object-contain" alt="VibeStream Logo" />
           </div>
-          <span className="text-2xl font-black tracking-tighter text-white">VIBESTREAM</span>
+          <span className="text-xl lg:text-2xl font-black tracking-tighter text-white">VIBESTREAM</span>
         </Link>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="p-2 text-white/40 hover:text-white lg:hidden -mr-2 -mt-2"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 px-6 space-y-6 overflow-y-auto">
