@@ -122,6 +122,28 @@ export default function UploadBox() {
         updateQueueItem(item.id, { status: 'uploading' });
 
         try {
+          let isPublic = true;
+
+          // Check for existing published duplicates by this user
+          const { data: existing } = await supabase
+            .from("songs")
+            .select("id, is_public")
+            .eq("user_id", user?.id)
+            .ilike("title", item.title)
+            .ilike("artist", item.artist)
+            .eq("is_public", true)
+            .limit(1);
+
+          if (existing && existing.length > 0) {
+             const skip = window.confirm(`"${item.title}" by ${item.artist} is already published in your library.\n\nClick OK to SKIP this file.\nClick Cancel to upload it as a PRIVATE track instead.`);
+             if (skip) {
+                updateQueueItem(item.id, { status: 'success' });
+                continue;
+             } else {
+                isPublic = false;
+             }
+          }
+
           const timestamp = Date.now();
           const audioPath = `song-${timestamp}-${item.file.name}`;
           let imagePath = "";
@@ -152,7 +174,8 @@ export default function UploadBox() {
               artist: item.artist,
               song_path: audioPath,
               image_path: imagePath ? supabase.storage.from("music").getPublicUrl(imagePath).data.publicUrl : null,
-              user_id: user?.id
+              user_id: user?.id,
+              is_public: isPublic
             });
 
           if (dbError) throw dbError;

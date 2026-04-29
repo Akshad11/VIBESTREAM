@@ -5,6 +5,7 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Player from "./components/Player";
 import { MusicProvider } from "./context/MusicContext";
+import AddToPlaylistModal from "./components/AddToPlaylistModal";
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -37,6 +38,7 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
           </div>
         </div>
         <Player />
+        <AddToPlaylistModal />
       </div>
     </MusicProvider>
   );

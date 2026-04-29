@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   title: "VibeStream | Modern Music Player",
   description: "Experience music like never before with VibeStream.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
     apple: "/logo.png",
   }
 };

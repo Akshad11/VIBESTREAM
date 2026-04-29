@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Play, Clock, MoreHorizontal, Trash2, AlertTriangle, Lock, Loader2 } from "lucide-react";
+import { Play, Clock, Trash2, AlertTriangle, Lock, Loader2, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useMusic } from "../context/MusicContext";
@@ -51,6 +51,21 @@ export default function Library() {
     } catch (error) {
       console.error("Error deleting song:", error);
       alert("Failed to delete song.");
+    }
+  };
+
+  const togglePublish = async (e: React.MouseEvent, id: string, currentStatus: boolean) => {
+    e.stopPropagation();
+    try {
+      const { error } = await supabase
+        .from("songs")
+        .update({ is_public: !currentStatus })
+        .eq("id", id);
+      if (error) throw error;
+      setSongs(songs.map(s => s.id === id ? { ...s, is_public: !currentStatus } : s));
+    } catch (error) {
+      console.error("Error updating publish status:", error);
+      alert("Failed to update status. Make sure the is_public column exists in your database.");
     }
   };
 
@@ -105,7 +120,10 @@ export default function Library() {
           <h1 className="text-4xl font-bold mb-2 tracking-tighter uppercase">My Library</h1>
           <p className="text-white/40">{songs.length} songs uploaded</p>
         </div>
-        <button className="bg-primary text-black px-8 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-primary/10">
+        <button 
+          onClick={() => { if(songs.length) playSong(songs[0], songs); }}
+          className="bg-primary text-black px-8 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-primary/10"
+        >
           <Play className="w-4 h-4 fill-current" /> Play All
         </button>
       </div>
@@ -117,7 +135,7 @@ export default function Library() {
           <div>Title</div>
           <div className="hidden md:block">Artist</div>
           <div className="w-16 flex justify-end pr-4"><Clock className="w-4 h-4" /></div>
-          <div className="w-12"></div>
+          <div className="w-20 text-center pr-2">Status</div>
         </div>
 
         {/* Table Body */}
@@ -174,14 +192,25 @@ export default function Library() {
                 --:--
               </div>
 
-              <div className="w-12 flex items-center justify-end">
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="w-20 flex items-center justify-end gap-3">
+                <button
+                  onClick={(e) => togglePublish(e, song.id, song.is_public ?? true)}
+                  className={cn(
+                    "p-1.5 rounded-full border transition-all",
+                    (song.is_public ?? true) ? "text-green-400 border-green-400/20 hover:bg-green-400/10" : "text-white/40 border-white/10 hover:bg-white/10"
+                  )}
+                  title={(song.is_public ?? true) ? "Public (Click to make private)" : "Private (Click to make public)"}
+                >
+                  {(song.is_public ?? true) ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                </button>
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
-                    className="text-white/40 hover:text-red-400 transition-colors p-1 cursor-pointer"
+                    className="text-white/40 hover:text-red-400 transition-colors p-1.5 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDelete(song.id);
                     }}
+                    title="Delete Song"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

@@ -10,6 +10,66 @@ import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useMusic } from "./context/MusicContext";
 
+const levenshtein = (a: string, b: string) => {
+  const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+};
+
+const fuzzyScore = (text: string, query: string): number => {
+  if (!text || !query) return Infinity;
+  const t = text.toLowerCase();
+  const q = query.toLowerCase();
+  
+  if (t === q) return 0;
+  if (t.startsWith(q)) return 1;
+  if (t.includes(q)) return 2;
+  
+  const qWords = q.split(/\s+/).filter(Boolean);
+  if (qWords.length === 0) return Infinity;
+
+  let matchCount = 0;
+  let totalDistance = 0;
+  for (const qw of qWords) {
+    let minDistance = Infinity;
+    const tWords = t.split(/[\s,.-]+/);
+    for (const tw of tWords) {
+      if (tw === qw) {
+         minDistance = 0;
+      } else if (tw.startsWith(qw)) {
+         minDistance = 0.5;
+      } else if (tw.includes(qw)) {
+         minDistance = 1;
+      } else {
+         minDistance = Math.min(minDistance, levenshtein(tw, qw));
+      }
+    }
+    const threshold = qw.length <= 4 ? 1 : 2;
+    if (minDistance <= threshold) {
+      matchCount++;
+      totalDistance += minDistance;
+    }
+  }
+  
+  if (matchCount === qWords.length) {
+    return 10 + totalDistance;
+  }
+  return Infinity;
+};
+
 function HomeContent() {
   const [songs, setSongs] = useState<any[]>([]);
   const [recentSongs, setRecentSongs] = useState<any[]>([]);
@@ -28,15 +88,41 @@ function HomeContent() {
         let query = supabase
           .from("songs")
           .select("*")
+          .eq("is_public", true)
           .order("created_at", { ascending: false });
 
-        if (searchQuery) {
-          query = query.or(`title.ilike.%${searchQuery}%,artist.ilike.%${searchQuery}%`);
+        if (!searchQuery) {
+           query = query.limit(50);
+        } else {
+           query = query.limit(1000); // Fetch more for client-side fuzzy search
         }
 
         const { data: songsData, error: songsError } = await query;
         if (songsError) throw songsError;
-        setSongs(songsData || []);
+        
+        let finalSongs = songsData || [];
+        
+        // Deduplicate: only show distinct songs by title and artist
+        const seen = new Set();
+        finalSongs = finalSongs.filter(song => {
+           const key = `${song.title.toLowerCase().trim()}-${song.artist.toLowerCase().trim()}`;
+           if (seen.has(key)) return false;
+           seen.add(key);
+           return true;
+        });
+
+        if (searchQuery) {
+           const scoredSongs = finalSongs.map(song => {
+             const titleScore = fuzzyScore(song.title, searchQuery);
+             const artistScore = fuzzyScore(song.artist, searchQuery);
+             const score = Math.min(titleScore, artistScore + 0.1); 
+             return { song, score };
+           }).filter(item => item.score < Infinity);
+           
+           scoredSongs.sort((a, b) => a.score - b.score);
+           finalSongs = scoredSongs.map(item => item.song);
+        }
+        setSongs(finalSongs);
 
         // 2. Fetch Recently Played
         const { data: { user } } = await supabase.auth.getUser();

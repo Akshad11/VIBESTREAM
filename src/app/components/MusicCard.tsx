@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Plus } from "lucide-react";
 import { useMusic } from "../context/MusicContext";
 
 interface MusicCardProps {
@@ -27,6 +27,11 @@ export default function MusicCard({ id, title, artist, image, song_path, queue }
     }
   };
 
+  const openAddToPlaylist = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent("open-playlist-modal", { detail: { songId: id } }));
+  };
+
   return (
     <div 
       onClick={handlePlay}
@@ -50,6 +55,13 @@ export default function MusicCard({ id, title, artist, image, song_path, queue }
                 <Play className="w-6 h-6 fill-current ml-0.5" />
             )}
           </motion.div>
+          <button 
+            onClick={openAddToPlaylist}
+            className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-primary hover:text-black text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-md"
+            title="Add to Playlist"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
         </div>
       </div>
       <h3 className="font-bold text-sm truncate group-hover:text-primary transition-colors">{title}</h3>

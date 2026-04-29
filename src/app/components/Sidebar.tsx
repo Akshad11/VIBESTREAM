@@ -24,10 +24,10 @@ export default function Sidebar() {
     <aside className="w-64 flex-shrink-0 flex flex-col bg-black/40 border-r border-white/5">
       <div className="p-6 mb-4">
         <Link href="/" className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-xl flex items-center justify-center p-1.5 overflow-hidden border border-white/10">
+          <div className="w-[60px] h-[60px] flex-shrink-0 flex items-center justify-center overflow-hidden">
             <img src="/logo.png" className="w-full h-full object-contain" alt="VibeStream Logo" />
           </div>
-          <span className="text-xl font-bold tracking-tighter text-white">VIBESTREAM</span>
+          <span className="text-2xl font-black tracking-tighter text-white">VIBESTREAM</span>
         </Link>
       </div>
 
